@@ -6,6 +6,7 @@ from rest_framework import status
 
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
+from django.contrib.auth import logout
 from rest_framework.authtoken.models import Token
 
 from .serializers import UserSerializer
@@ -36,3 +37,19 @@ def login(request):
 @permission_classes([IsAuthenticated])
 def test_token(request):
     return Response("passed!")
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def logout(request):
+    if request.method == 'POST':
+        try:
+            # Delete the user's token to logout
+            request.user.auth_token.delete()
+            data = {
+                "message": "You have successfully logged out!"
+            }
+            return Response(data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+#36930826
